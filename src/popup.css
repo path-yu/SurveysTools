@@ -2,91 +2,186 @@
 *,
 *::before,
 *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 /* normalize css ends here */
 
-
 html {
-    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
-    color: #222;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
+    sans-serif;
+  color: #222;
 }
 
 body {
-    width: 350px;
-    height: 300px;
+  width: 600px;
+  height: 300px;
 }
-
+.justify-between {
+  justify-content: space-between;
+}
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+.mt10 {
+  margin-top: 10px;
+}
+.ml10 {
+  margin-left: 10px;
+}
+button {
+  outline: none;
+  border: none;
+}
 .app {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 20px;
+  height: 100%;
+  padding: 20px;
 }
 
 .title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .subtitle {
-    font-size: 12px;
+  font-size: 12px;
+}
+/* 成功按钮 */
+.success-button {
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
 }
 
-code {
-    font-size: 12px;
-    font-family: inherit;
-    background-color: rgba(254, 237, 185, .3);
-    padding: 2px 4px;
-    border-radius: 2px;
+.success-button:hover {
+  background-color: #218838;
+  cursor: pointer;
 }
 
-.counter-label {
-    font-size: 12px;
-    margin-bottom: 5px;
+.success-button:active {
+  transform: translateY(1px);
 }
 
-.counter {
-    font-size: 36px;
-    font-weight: 700;
+/* 信息按钮 */
+.info-button {
+  background-color: #17a2b8;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
 }
 
-.button-container {
-    margin-top: 15px;
+.info-button:hover {
+  background-color: #138496;
+  cursor: pointer;
 }
 
-.button {
-    border: 0;
-    display: inline-block;
-    padding: 10px 20px;
-    margin-right: 4px;
-    margin-left: 4px;
-    background-color: bisque;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: transform .2s ease;
-    user-select: none;
+.info-button:active {
+  transform: translateY(1px);
 }
 
-.button:focus {
-    outline: none;
+/* 警告按钮 */
+.warning-button {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
 }
 
-.button:hover {
-    transform: scale(1.1);
+.warning-button:hover {
+  background-color: #e0a800;
+  cursor: pointer;
 }
 
-.divider {
-    margin: 30px auto 25px;
-    width: 50px;
-    border: .5px dashed #000;
-    opacity: .1;
+.warning-button:active {
+  transform: translateY(1px);
+}
+
+/* 危险按钮 */
+.danger-button {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+}
+
+.danger-button:hover {
+  background-color: #c82333;
+  cursor: pointer;
+}
+
+.danger-button:active {
+  transform: translateY(1px);
+}
+
+.questionnaire {
+  border-radius: 5px;
+  padding: 10px;
+  display: inline-block;
+}
+.f14 {
+  font-size: 14px;
+}
+.questionnaire .number {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.questionnaire .value {
+  font-size: 18px;
+}
+.selectContainer {
+  display: flex;
+  align-items: center;
+}
+.ml20 {
+  margin-left: 20px;
+}
+label {
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+select {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 2px;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+/* 在CSS中为提示元素定义默认样式和过渡 */
+#copy-message {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: green;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  opacity: 0; /* 默认情况下将提示元素的透明度设置为0 */
+  transition: opacity 0.3s ease-in-out; /* 添加过渡效果 */
+}
+
+/* 当提示元素处于可见状态时，将其透明度设置为1 */
+#copy-message.visible {
+  opacity: 1;
+}
+.f15 {
+  font-size: 15px;
 }

@@ -1,112 +1,135 @@
-'use strict';
+"use strict";
 
-import './popup.css';
+import "./popup.css";
 
-(function() {
-  // We will make use of Storage API to get and store `count` value
-  // More information on Storage API can we found at
-  // https://developer.chrome.com/extensions/storage
-
-  // To get storage access, we have to mention it in `permissions` property of manifest.json file
-  // More information on Permissions can we found at
-  // https://developer.chrome.com/extensions/declare_permissions
-  const counterStorage = {
-    get: cb => {
-      chrome.storage.sync.get(['count'], result => {
-        cb(result.count);
-      });
-    },
-    set: (value, cb) => {
-      chrome.storage.sync.set(
-        {
-          count: value,
-        },
-        () => {
-          cb();
-        }
-      );
-    },
-  };
-
-  function setupCounter(initialValue = 0) {
-    document.getElementById('counter').innerHTML = initialValue;
-
-    document.getElementById('incrementBtn').addEventListener('click', () => {
-      updateCounter({
-        type: 'INCREMENT',
-      });
-    });
-
-    document.getElementById('decrementBtn').addEventListener('click', () => {
-      updateCounter({
-        type: 'DECREMENT',
-      });
-    });
-  }
-
-  function updateCounter({ type }) {
-    counterStorage.get(count => {
-      let newCount;
-
-      if (type === 'INCREMENT') {
-        newCount = count + 1;
-      } else if (type === 'DECREMENT') {
-        newCount = count - 1;
-      } else {
-        newCount = count;
-      }
-
-      counterStorage.set(newCount, () => {
-        document.getElementById('counter').innerHTML = newCount;
-
-        // Communicate with content script of
-        // active tab by sending a message
-        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-          const tab = tabs[0];
-
-          chrome.tabs.sendMessage(
-            tab.id,
-            {
-              type: 'COUNT',
-              payload: {
-                count: newCount,
-              },
-            },
-            response => {
-              console.log('Current count value passed to contentScript file');
-            }
-          );
-        });
-      });
-    });
-  }
-
-  function restoreCounter() {
-    // Restore count value
-    counterStorage.get(count => {
-      if (typeof count === 'undefined') {
-        // Set counter value as 0
-        counterStorage.set(0, () => {
-          setupCounter(0);
-        });
-      } else {
-        setupCounter(count);
+(function () {
+  let activeOppId = null;
+  let activeTabId = null;
+  function init() {
+    chrome.runtime.sendMessage({ type: "geSurveyData" }, (response) => {
+      activeOppId = response.value.oppId;
+      activeTabId = response.value.tabId;
+      if (response.value.oppId) {
+        document.querySelector(".questionnaire > .number > span").textContent =
+          response.value.oppId;
+        document.querySelector(".questionnaire > .value > span").textContent =
+          response.value.money;
       }
     });
-  }
 
-  document.addEventListener('DOMContentLoaded', restoreCounter);
+    let statusSelectValue = localStorage.getItem("statusSelectValue");
+    let selectOpenValue = localStorage.getItem("selectOpenValue");
+    let moneySelectValue = localStorage.getItem("moneySelectValue");
 
-  // Communicate with background file by sending a message
-  chrome.runtime.sendMessage(
-    {
-      type: 'GREETINGS',
-      payload: {
-        message: 'Hello, my name is Pop. I am from Popup.',
-      },
-    },
-    response => {
-      console.log(response.message);
+    if (statusSelectValue) {
+      statusSelect.value = statusSelectValue;
     }
-  );
+    if (selectOpenValue) {
+      openSelect.value = selectOpenValue;
+    }
+    if (moneySelectValue) {
+      moneySelect.value = moneySelectValue;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+
+  const openButton = document.querySelector(".openButton");
+  const disabledButton = document.querySelector(".disabledButton");
+  const availableButton = document.querySelector(".availableButton");
+  const refreshButton = document.querySelector(".refreshButton");
+  const openSelect = document.querySelector("#open-select");
+  const statusSelect = document.querySelector("#status-select");
+  const moneySelect = document.querySelector("#money-select");
+  const oppOrderButton = document.querySelector(".oppOrderButton");
+
+  openButton.addEventListener("click", async () => {
+    const result = await chrome.storage.session.get(["iframeUrl"]);
+    if (result.iframeUrl) {
+      window.open(result.iframeUrl);
+    }
+  });
+
+  disabledButton.addEventListener("click", async () => {
+    let result = await chrome.storage.session.get("rootTabId");
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+result["rootTabId"], {
+        menuItemId: "disabled",
+        type: "updateTabs",
+        activeOppId,
+      });
+    }
+  });
+  availableButton.addEventListener("click", async () => {
+    let result = await chrome.storage.session.get("rootTabId");
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+result["rootTabId"], {
+        menuItemId: "available",
+        type: "updateTabs",
+        activeOppId,
+      });
+    }
+  });
+
+  refreshButton.addEventListener("click", async (ev) => {
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+activeTabId, {
+        type: "refreshList",
+      });
+    }
+  });
+  openSelect.addEventListener("change", async (event) => {
+    let result = await chrome.storage.session.get("rootTabId");
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+result["rootTabId"], {
+        type: "selectOpenChange",
+        selectValue: event.target.value,
+      });
+      localStorage.setItem("selectOpenValue", event.target.value);
+    }
+  });
+  statusSelect.addEventListener("change", async (event) => {
+    let result = await chrome.storage.session.get("rootTabId");
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+result["rootTabId"], {
+        type: "statusChange",
+        selectValue: event.target.value,
+      });
+      localStorage.setItem("statusSelectValue", event.target.value);
+    }
+  });
+  moneySelect.addEventListener("change", async (event) => {
+    console.log("change");
+    let result = await chrome.storage.session.get("rootTabId");
+    if (result["rootTabId"]) {
+      chrome.tabs.sendMessage(+result["rootTabId"], {
+        type: "moneyChange",
+        selectValue: event.target.value,
+      });
+      localStorage.setItem("moneySelectValue", event.target.value);
+    }
+  });
+  oppOrderButton.addEventListener("click", (ev) => {
+    if (oppOrderButton.textContent != "未知") {
+      navigator.clipboard.writeText(oppOrderButton.textContent);
+      const message = "复制成功！";
+      const div = document.createElement("div");
+      div.id = "copy-message";
+      div.textContent = message;
+      document.body.appendChild(div);
+
+      // 在下一帧中切换提示元素的可见状态，触发过渡效果
+      window.requestAnimationFrame(() => {
+        div.classList.add("visible");
+      });
+
+      // 3秒后删除提示元素
+      setTimeout(() => {
+        div.classList.remove("visible");
+        setTimeout(() => {
+          document.body.removeChild(div);
+        }, 300); // 等待0.3秒，使过渡效果结束后再删除元素
+      }, 3000);
+    }
+  });
 })();

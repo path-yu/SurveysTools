@@ -1,32 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    />
     <title>My Chrome Extension</title>
     <link rel="stylesheet" href="popup.css" />
-</head>
-<body>
-  <div class="app">
-    <p class="counter-label">Counter</p>
-    <div id="counter" class="counter"></div>
-    <div class="button-container">
-      <button id="decrementBtn" class="button">-</button>
-      <button id="incrementBtn" class="button">+</button>
+  </head>
+  <body>
+    <div class="app">
+      <div class="flex items-center">
+        <p class="title">欢迎使用 Survey Tool</p>
+        <div class="questionnaire" style="margin-left: 10px">
+          <div class="number">
+            当前问卷编号:
+            <span
+              class="cursor-pointer oppOrderButton"
+              style="color: cadetblue"
+              class="f15"
+              >未知</span
+            >
+          </div>
+          <div class="value">
+            当前问卷价值:
+            <span style="color: cadetblue" class="f15"> 未知</span>
+          </div>
+        </div>
+      </div>
+      <button class="success-button openButton">
+        打开 iframe 问卷列表页面
+      </button>
+      <div style="display: flex; align-items: center; margin-top: 20px">
+        <button class="info-button disabledButton">标记为不合适</button>
+        <button class="info-button availableButton ml20">标记为可用</button>
+        <button class="info-button refreshButton ml20">刷新问卷列表</button>
+        <!-- <button class="info-button">自动填充生日</button> -->
+      </div>
+      <div style="margin-top: 10px">
+        <h2>页面问卷筛选</h2>
+        <div class="flex mt10">
+          <div class="selectContainer">
+            <label for="open-select">是否打开：</label>
+            <select id="open-select">
+              <option value="all">全部</option>
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          </div>
+          <div class="selectContainer ml10">
+            <label for="status-select">问卷状态：</label>
+            <select id="status-select" class="flex items-center">
+              <option value="all">全部</option>
+              <option value="0">未知</option>
+              <option value="1">测试成功</option>
+              <option value="2">不合适</option>
+            </select>
+          </div>
+          <div class="selectContainer ml10">
+            <label for="money-select">价值区间筛选：</label>
+            <select id="money-select" class="flex items-center">
+              <option value="all">全部</option>
+              <option value="1">0.5~1区间</option>
+              <option value="2">1~2区间</option>
+              <option value="3">2~3区间</option>
+              <option value="4">3元以上</option>
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <hr class="divider" />
-
-    <p class="title">Chrome Extension is Ready!</p>
-    <p class="subtitle">Start by updating <code>popup.html</code></p>
-  </div>
-
-  <script src="popup.js"></script>
-
-  <!--
-    This HTML file opens when you click on icon from the toolbar.
-
-    To begin the development, run `npm run watch`.
-    To create a production bundle, use `npm run build`.
-  -->
-</body>
+    <script src="popup.js"></script>
+  </body>
 </html>
