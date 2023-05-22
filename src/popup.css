@@ -15,8 +15,8 @@ html {
 }
 
 body {
-  width: 600px;
-  height: 300px;
+  width: 550px;
+  height: 200px;
 }
 .justify-between {
   justify-content: space-between;
@@ -180,6 +180,19 @@ select {
 
 /* 当提示元素处于可见状态时，将其透明度设置为1 */
 #copy-message.visible {
+  opacity: 1;
+}
+#error-message {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #fef0f0;
+  color: #f56c6c;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+#error-message .visible {
   opacity: 1;
 }
 .f15 {
