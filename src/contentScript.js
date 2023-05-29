@@ -55,7 +55,6 @@ if (location.host == "panelist.cint.com") {
     checkLocationPathName();
   }
 }
-
 const changeMainStyle = () => {
   document.querySelector(
     `#app-root > main > app-${

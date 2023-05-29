@@ -27,6 +27,7 @@ import "./popup.css";
   const availableButton = document.querySelector(".availableButton");
   const refreshButton = document.querySelector(".refreshButton");
   const oppOrderButton = document.querySelector(".oppOrderButton");
+  const openSettingPageButton = document.getElementById("openSettingPage");
 
   openButton.addEventListener("click", async () => {
     const result = await chrome.storage.session.get(["iframeUrl"]);
@@ -63,6 +64,12 @@ import "./popup.css";
       navigator.clipboard.writeText(oppOrderButton.textContent);
       renderMessage();
     }
+  });
+
+  openSettingPageButton.addEventListener("click", () => {
+    chrome.tabs.create({
+      url: "chrome://settings/content/popups?search=Pop-ups+and+redirects",
+    });
   });
 
   const renderMessage = (type = 0, message = "复制成功") => {
