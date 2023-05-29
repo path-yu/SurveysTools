@@ -136,12 +136,12 @@ button {
   font-size: 14px;
 }
 .questionnaire .number {
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 5px;
 }
 
 .questionnaire .value {
-  font-size: 18px;
+  font-size: 16px;
 }
 .selectContainer {
   display: flex;

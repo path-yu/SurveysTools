@@ -1,16 +1,22 @@
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.querySelector("#panelist-portal")) {
-    chrome.runtime.sendMessage({
-      type: "setIframeUrl",
-      payload: {
-        url: document.querySelector("#panelist-portal").getAttribute("src"),
-      },
-    });
-  }
-});
+(function () {
+  let timer = setInterval(() => {
+    if (document.querySelector("#panelist-portal")) {
+      console.log(
+        "success",
+        document.querySelector("#panelist-portal").getAttribute("src")
+      );
+      chrome.runtime.sendMessage({
+        type: "setIframeUrl",
+        payload: {
+          url: document.querySelector("#panelist-portal").getAttribute("src"),
+        },
+      });
+      clearInterval(timer);
+    }
+  }, 300);
+})();
 let timer;
 let containerRoot;
-
 const checkLocationPathName = () => {
   if (location.pathname.includes("surveys:history")) {
     timer = setInterval(() => {
@@ -36,10 +42,10 @@ const checkLocationPathName = () => {
     }, 300);
   }
 };
-console.log("render");
 if (location.host == "panelist.cint.com") {
   if (location.pathname == "/") {
     let cancanId = setInterval(() => {
+      console.log("cancel");
       if (location.pathname != "/") {
         clearInterval(cancanId);
         setTimeout(checkLocationPathName);
@@ -66,7 +72,6 @@ let observer = null;
 const init = () => {
   // 创建一个新的MutationObserver对象
   observer = new MutationObserver((mutationsList, observer) => {
-    console.log("childList");
     // 在DOM节点改变时执行的回调函数
     for (const mutation of mutationsList) {
       if (mutation.type == "childList" && !hasOwnChangeChildList) {
@@ -87,6 +92,13 @@ const statusMap = {
   2: "不合适",
 };
 let questionMap = {};
+// const appendCheckDom = (tableELe) => {
+//   let inputCheck = document.createElement("input");
+//   inputCheck.setAttribute("type", "checkbox");
+//   inputCheck.style.cssText =
+//     "width:25px;height:25px;transform:translateX(10px)";
+//   tableELe.insertAdjacentElement("afterbegin", inputCheck);
+// };
 const changeList = () => {
   const children = containerRoot.children;
 
@@ -99,7 +111,7 @@ const changeList = () => {
     button.setAttribute("data-opp-id", oppId);
     button.removeEventListener("click", handleClick);
     button.addEventListener("click", handleClick);
-
+    // appendCheckDom(tableELe);
     if (
       hasOpenSelectValue == "all" &&
       statusSelectValue == "all" &&
@@ -149,6 +161,9 @@ const changeList = () => {
             hasOpenEle,
             otherEle,
             tabsId: null,
+            time: child
+              .querySelector(".opportunity-lengthOfInterview-value")
+              .textContent.trim(),
             money: child
               .querySelector(".opportunity-incentive")
               .textContent.trim(),
@@ -165,6 +180,7 @@ const changeList = () => {
     }
   }
 };
+
 const renderDom = (data, hasOpenEle, otherEle) => {
   hasOwnChangeChildList = true;
   hasOpenEle.textContent = data["hasOpen"] ? "已打开" : "未打开";
@@ -192,6 +208,7 @@ const handleClick = (event) => {
 let hasOpenSelectValue = "all",
   statusSelectValue = "all",
   moneySelectValue = "all";
+(moneyOrderSelectValue = "all"), (inputValue = "");
 let validationMoneyMap = {
   1: (value) => value >= 0.5 && value < 1,
   2: (value) => value >= 1 && value < 2,
@@ -215,6 +232,7 @@ if (location.host == "panelist.cint.com") {
             value: {
               oppId: prevClickOppId,
               money: questionMap[prevClickOppId]["money"],
+              time: questionMap[prevClickOppId]["time"],
             },
           },
         });
@@ -235,7 +253,6 @@ if (location.host == "panelist.cint.com") {
     if (message.type == "refreshList") {
       containerRoot = document.querySelector("#opportunities");
       if (containerRoot != null && location.pathname.includes("surveys")) {
-        console.log("refresh");
         observer.disconnect();
         init();
         changeList();
@@ -248,8 +265,8 @@ if (location.host == "panelist.cint.com") {
 
 if (location.host == "panelist.cint.com") {
   const html = `
-      <div class="flex mt10" style="
-      background: linear-gradient(rgb(252, 199, 12) 0%, rgb(218, 172, 11) 100%);
+      <div class="flex mt10" id="filterContainer" style="
+      background: linear-gradient(to bottom right, #FFC0CB, #87CEEB);
       width: 100%;
       justify-content: center;
       display: flex;
@@ -257,6 +274,7 @@ if (location.host == "panelist.cint.com") {
       top: 61px;
       z-index: 999;
       padding:10px;
+      align-items:center;
       ">
         <div class="selectContainer">
           <label for="open-select">是否打开：</label>
@@ -276,7 +294,7 @@ if (location.host == "panelist.cint.com") {
           </select>
         </div>
         <div class="selectContainer" style="margin-left:20px">
-          <label for="money-select">价值区间筛选：</label>
+          <label for="money-select">奖励区间筛选：</label>
           <select id="money-select" class="flex items-center">
             <option value="all">全部</option>
             <option value="1">0.5~1区间</option>
@@ -285,28 +303,73 @@ if (location.host == "panelist.cint.com") {
             <option value="4">3元以上</option>
           </select>
         </div>
+        <div class="selectContainer" style="margin-left:20px">
+          <input type="text" id="numberText" style="width:240px;" placeholder="请输入问卷编号,多个使用,分割" />
+        </div>
+        <button style="margin-left:10px;" id="searchBtn">搜索</button>
+        <div style="margin-left:10px;">
+          <span >跳过已打开的问卷</span>
+          <input checked="true" id="skipCheckBox" type='checkbox'  />
+        </div>
+        <input style="margin-left:10px;width:50px;" type="number" id="durationNumber"  placeholder="时间间隔" value="2" />
+        <button style="margin-left:10px;" id="openAllSurveyButton">批量打开所有问卷</button>
       </div>
   `;
   document.body.insertAdjacentHTML("afterbegin", html);
+
   setTimeout(() => {
     const openSelect = document.getElementById("open-select");
     const statusSelect = document.getElementById("status-select");
     const moneySelect = document.getElementById("money-select");
-    openSelect.addEventListener("change", async (event) => {
+    const orderNumberInputEle = document.getElementById("numberText");
+    const searchBtn = document.getElementById("searchBtn");
+    const openAllSurveyButton = document.getElementById("openAllSurveyButton");
+    const skipCheckBox = document.getElementById("skipCheckBox");
+
+    openSelect.addEventListener("change", (event) => {
       hasOpenSelectValue = event.target.value;
       changeChildrenDisplay();
     });
-    statusSelect.addEventListener("change", async (event) => {
+    statusSelect.addEventListener("change", (event) => {
       statusSelectValue = event.target.value;
       changeChildDisplay();
     });
-    moneySelect.addEventListener("change", async (event) => {
+    moneySelect.addEventListener("change", (event) => {
       moneySelectValue = event.target.value;
       changeChildrenDisplay();
     });
+
+    orderNumberInputEle.addEventListener("blur", (event) => {
+      inputValue = event.target.value;
+    });
+
+    searchBtn.addEventListener("click", () => {
+      changeChildrenDisplay();
+    });
+
+    openAllSurveyButton.addEventListener("click", async (event) => {
+      let time = document.getElementById("durationNumber").value;
+      event.target.disabled = true;
+      let children = containerRoot.children;
+      for (let index = 0; index < children.length; index++) {
+        const child = children[index];
+        let oppId = child.getAttribute("data-opp-id");
+        let data = questionMap[oppId];
+        if (skipCheckBox.checked && data["hasOpen"]) {
+          continue;
+        }
+        await sleep(time * 1000);
+        // bind id
+        const button = child.querySelector(".take-survey");
+        button.click();
+      }
+      event.target.disabled = false;
+    });
   });
-  console.log("hello world");
 }
+const sleep = (time = 3000) => {
+  return new Promise((resolve) => setTimeout(resolve, time));
+};
 let toolbarObserver;
 const listenerRootMain = () => {
   // 创建一个新的MutationObserver对象
@@ -341,31 +404,39 @@ const listenOpportunitiesEleChange = () => {
   }, 300);
 };
 const changeChildDisplay = (child, data) => {
-  let money = parseFloat(data["money"]);
-  let firstValue =
-    hasOpenSelectValue == "all"
-      ? true
-      : data["hasOpen"] + "" == hasOpenSelectValue;
-  let secondValue =
-    statusSelectValue == "all" ? true : data["status"] == statusSelectValue;
-  let thirdValue =
-    moneySelectValue == "all"
-      ? true
-      : validationMoneyMap[moneySelectValue](money);
-  child.style.display =
-    firstValue && secondValue && thirdValue ? "block" : "none";
+  if (data) {
+    let money = parseFloat(data["money"]);
+    let firstValue =
+      hasOpenSelectValue == "all"
+        ? true
+        : data["hasOpen"] + "" == hasOpenSelectValue;
+    let secondValue =
+      statusSelectValue == "all" ? true : data["status"] == statusSelectValue;
+    let thirdValue =
+      moneySelectValue == "all"
+        ? true
+        : validationMoneyMap[moneySelectValue](money);
+    let fourValue =
+      inputValue.trim() == ""
+        ? true
+        : inputValue.split(",").includes(data["id"]);
+    child.style.display =
+      firstValue && secondValue && thirdValue && fourValue ? "block" : "none";
+  }
 };
 const changeChildrenDisplay = () => {
   hasOwnChangeChildList = true;
   if (
     hasOpenSelectValue == "all" &&
     statusSelectValue == "all" &&
-    moneySelectValue == "all"
+    moneySelectValue == "all" &&
+    inputValue == ""
   ) {
     for (let index = 0; index < containerRoot.children.length; index++) {
       const child = containerRoot.children[index];
       child.style.display = "block";
     }
+
     setTimeout(() => (hasOwnChangeChildList = false));
   } else {
     for (let index = 0; index < containerRoot.children.length; index++) {

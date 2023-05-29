@@ -14,6 +14,8 @@ import "./popup.css";
           response.value.oppId;
         document.querySelector(".questionnaire > .value > span").textContent =
           response.value.money;
+        document.querySelector(".questionnaire > .time > span").textContent =
+          response.value.time + "分钟";
       }
     });
   }
