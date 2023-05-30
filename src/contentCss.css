@@ -1,0 +1,28 @@
+.myTooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.myTooltip .tooltiptext {
+  visibility: hidden;
+  width: 250px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+
+  top: 120%;
+  left: 50%;
+  margin-left: -122.5px; /* Use half of the width (120/2 = 60), to center the tooltip */
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.myTooltip:hover .tooltiptext {
+  visibility: visible;
+}

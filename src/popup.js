@@ -25,16 +25,16 @@ import "./popup.css";
   const openButton = document.querySelector(".openButton");
   const disabledButton = document.querySelector(".disabledButton");
   const availableButton = document.querySelector(".availableButton");
-  const refreshButton = document.querySelector(".refreshButton");
   const oppOrderButton = document.querySelector(".oppOrderButton");
   const openSettingPageButton = document.getElementById("openSettingPage");
+  const closeTabsButton = document.querySelector(".closeTabsButton");
 
   openButton.addEventListener("click", async () => {
     const result = await chrome.storage.session.get(["iframeUrl"]);
     if (result.iframeUrl) {
       window.open(result.iframeUrl);
     } else {
-      renderMessage(1, "页面未初始化完成!");
+      renderMessage(1, "页面未初始化完成!请刷新页面");
     }
   });
 
@@ -69,6 +69,17 @@ import "./popup.css";
   openSettingPageButton.addEventListener("click", () => {
     chrome.tabs.create({
       url: "chrome://settings/content/popups?search=Pop-ups+and+redirects",
+    });
+  });
+
+  closeTabsButton.addEventListener("click", () => {
+    chrome.tabs.query({}, function (tabs) {
+      let removeTabsIds = tabs
+        .filter(
+          (tab) => tab.title == "Survey Matcher" || tab.title == "调查匹配器"
+        )
+        .map((tab) => tab.id);
+      chrome.tabs.remove(removeTabsIds);
     });
   });
 

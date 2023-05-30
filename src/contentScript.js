@@ -248,15 +248,15 @@ if (location.host == "panelist.cint.com") {
         renderDom(data, data["hasOpenEle"], data["otherEle"]);
       }
     }
-
-    if (message.type == "refreshList") {
-      containerRoot = document.querySelector("#opportunities");
-      if (containerRoot != null && location.pathname.includes("surveys")) {
-        observer.disconnect();
-        init();
-        changeList();
-      }
+    console.log(message.type);
+    if (message.type == "initBookMarks") {
+      console.log("success");
+      let remarkList = document
+        .querySelector("._cell__content_1sjlo_22")
+        .textContent.split(",");
+      sendResponse({ data: remarkList });
     }
+
     sendResponse({});
     return true;
   });
@@ -310,8 +310,13 @@ if (location.host == "panelist.cint.com") {
           <span >跳过已打开的问卷</span>
           <input checked="true" id="skipCheckBox" type='checkbox'  />
         </div>
-        <input style="margin-left:10px;width:50px;" type="number" id="durationNumber"  placeholder="时间间隔" value="2" />
-        <button style="margin-left:10px;" id="openAllSurveyButton">批量打开所有问卷</button>
+        <input style="margin-left:10px;width:50px;" type="number" id="durationNumber"  placeholder="时间间隔" value="1" />
+        <button style="margin-left:10px;" id="openAllSurveyButton" >
+          <div  class="myTooltip">
+              一键打开所有问卷
+             <span class="tooltiptext">请确保你在chrome设置中勾选了Sites can send pop-ups and use redirects</span>
+          </div>
+        </button>
       </div>
   `;
   document.body.insertAdjacentHTML("afterbegin", html);
@@ -323,7 +328,6 @@ if (location.host == "panelist.cint.com") {
     const orderNumberInputEle = document.getElementById("numberText");
     const searchBtn = document.getElementById("searchBtn");
     const openAllSurveyButton = document.getElementById("openAllSurveyButton");
-    const skipCheckBox = document.getElementById("skipCheckBox");
 
     openSelect.addEventListener("change", (event) => {
       hasOpenSelectValue = event.target.value;
@@ -449,3 +453,18 @@ const changeChildrenDisplay = () => {
     setTimeout(() => (hasOwnChangeChildList = false));
   }
 };
+if (location.host == "start.adspower.net") {
+  let timer = setInterval(() => {
+    if (document.querySelector("._cell__content_1sjlo_22")) {
+      chrome.runtime.sendMessage({
+        type: "initBookMarks",
+        data: document
+          .querySelector(
+            "#app > div._start__content_zxiw2_7 > div._card_1t9wg_7._start__card_zxiw2_12 > div:nth-child(1) > div:nth-child(5) > div._cell__content_1sjlo_22"
+          )
+          .textContent.split(","),
+      });
+      clearInterval(timer);
+    }
+  }, 300);
+}

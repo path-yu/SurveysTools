@@ -18,7 +18,9 @@
   },
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "activeTab",
+    "bookmarks"
   ],
   "content_scripts": [
     {
@@ -28,6 +30,9 @@
       "run_at": "document_idle",
       "js": [
         "contentScript.js"
+      ],
+      "css": [
+        "contentCss.css"
       ]
     }
   ]
